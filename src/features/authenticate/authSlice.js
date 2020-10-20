@@ -40,14 +40,19 @@ export const authSlice = createSlice({
 // Supposedly async functions
 export const signin = (data) => async (dispatch) => {
   dispatch(authStart());
-  // This simulate a check to server to see if there is a user
-  const user = JSON.parse(localStorage.getItem(data.username));
-
-  // Compare the password
-  const match = await bcrypt.compare(data.password, user.password);
-
-  // Assume this could throw error, simulate a call to database
   try {
+    // This simulate a check to server to see if there is a user
+    const user = JSON.parse(localStorage.getItem(data.username));
+
+    if (!user) {
+      throw new Error('Invalid credentials!');
+    }
+
+    // Compare the password
+    const match = await bcrypt.compare(data.password, user.password);
+    console.log(match);
+
+    // Assume this could throw error, simulate a call to database
     if (match) {
       // Simulate response time of 1500 ms
       setTimeout(() => {
@@ -59,7 +64,6 @@ export const signin = (data) => async (dispatch) => {
       throw new Error('Invalid credentials!');
     }
   } catch (err) {
-    console.log(err.message);
     dispatch(authFail({ error: err.message }));
   }
 };

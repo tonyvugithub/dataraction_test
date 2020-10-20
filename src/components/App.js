@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
 import Layout from '../hoc/Layout';
-import Main from '../pages/Index';
+import Main from '../pages/Index/Index';
 import Authenticate from '../pages/Authenticate';
 import { useDispatch } from 'react-redux';
 import { validateExistingToken } from '../features/authenticate/authSlice';
