@@ -1,6 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { signup, selectAuthState } from '../../features/authenticate/authSlice';
+import {
+  signup,
+  selectAuthState,
+  resetError,
+} from '../../features/authenticate/authSlice';
 import Spinner from '../UI/Spinner/Spinner';
 
 export default () => {
@@ -11,6 +15,10 @@ export default () => {
 
   const { error, loading } = useSelector(selectAuthState);
 
+  useEffect(() => {
+    dispatch(resetError());
+  }, [dispatch]);
+
   const onSubmit = (e) => {
     e.preventDefault();
     dispatch(signup({ username, password }));
@@ -18,7 +26,7 @@ export default () => {
     setPassword('');
   };
 
-  const errorMessage = <div>{error}</div>;
+  const errorMessage = <div className="text-danger mt-3">{error}</div>;
 
   return (
     <div className="mt-5 mx-auto" style={{ maxWidth: '500px' }}>
@@ -35,7 +43,12 @@ export default () => {
                 type="text"
                 name="username"
                 id="username"
-                onChange={(e) => setUsername(e.target.value)}
+                onChange={(e) => {
+                  setUsername(e.target.value);
+                  dispatch(resetError());
+                }}
+                autoFocus
+                value={username}
               ></input>
             </div>
             <div className="form-group">
@@ -45,7 +58,11 @@ export default () => {
                 type="password"
                 name="password"
                 id="password"
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  dispatch(resetError());
+                }}
+                value={password}
               ></input>
             </div>
             <button type="submit" className="btn btn-primary">

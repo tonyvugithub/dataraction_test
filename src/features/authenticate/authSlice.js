@@ -34,71 +34,77 @@ export const authSlice = createSlice({
       state.loading = false;
       state.token = null;
     },
+    resetError: (state) => {
+      state.error = null;
+    },
   },
 });
 
 // Supposedly async functions
-export const signin = (data) => async (dispatch) => {
+export const signin = (data) => (dispatch) => {
   dispatch(authStart());
-  try {
-    // This simulate a check to server to see if there is a user
-    const user = JSON.parse(localStorage.getItem(data.username));
+  setTimeout(async () => {
+    try {
+      // This simulate a check to server to see if there is a user
+      const user = JSON.parse(localStorage.getItem(data.username));
 
-    if (!user) {
-      throw new Error('Invalid credentials!');
-    }
+      if (!user) {
+        throw new Error('Invalid credentials!');
+      }
 
-    // Compare the password
-    const match = await bcrypt.compare(data.password, user.password);
+      // Compare the password
+      const match = await bcrypt.compare(data.password, user.password);
 
-    // Assume this could throw error, simulate a call to database
-    if (match) {
-      // Simulate response time of 1500 ms
-      setTimeout(() => {
+      // Assume this could throw error, simulate a call to database
+      if (match) {
+        const userInfoJSON = JSON.stringify(user);
+
+        // Simulate response time of 1500 ms
         dispatch(authSuccess({ username: data.username, token: userInfoJSON }));
-      }, 1500);
-      const userInfoJSON = JSON.stringify(user);
-      localStorage.setItem('token', userInfoJSON);
-    } else {
-      throw new Error('Invalid credentials!');
+
+        localStorage.setItem('token', userInfoJSON);
+      } else {
+        throw new Error('Invalid credentials!');
+      }
+    } catch (err) {
+      dispatch(authFail({ error: err.message }));
     }
-  } catch (err) {
-    dispatch(authFail({ error: err.message }));
-  }
+  }, 1500);
 };
 
 export const signup = (data) => (dispatch) => {
   dispatch(authStart());
-  // This simulate a check to server to see if there is a user
-  const userInfoFromDb = localStorage.getItem(data.username);
+  setTimeout(() => {
+    // This simulate a check to server to see if there is a user
+    const userInfoFromDb = localStorage.getItem(data.username);
 
-  // Assume this could throw error, simulate a call to database
-  try {
-    if (userInfoFromDb) {
-      throw new Error('User already exist!');
-    } else {
-      // Hash the password and store into database
-      bcrypt.hash(data.password, 12, (err, hash) => {
-        const saveData = {
-          username: data.username,
-          password: hash,
-        };
+    // Assume this could throw error, simulate a call to database
+    try {
+      if (userInfoFromDb) {
+        throw new Error('User already exist!');
+      } else {
+        // Hash the password and store into database
+        bcrypt.hash(data.password, 12, (err, hash) => {
+          const saveData = {
+            username: data.username,
+            password: hash,
+          };
 
-        const userInfoJSON = JSON.stringify(saveData);
+          const userInfoJSON = JSON.stringify(saveData);
 
-        // Simulate response time of 1500 ms
-        setTimeout(() => {
+          // Simulate response time of 1500 ms
+
           dispatch(
             authSuccess({ username: data.username, token: userInfoJSON })
           );
-        }, 1500);
-        localStorage.setItem(data.username, userInfoJSON);
-        localStorage.setItem('token', userInfoJSON);
-      });
+          localStorage.setItem(data.username, userInfoJSON);
+          localStorage.setItem('token', userInfoJSON);
+        });
+      }
+    } catch (err) {
+      dispatch(authFail({ error: err.message }));
     }
-  } catch (err) {
-    dispatch(authFail({ error: err.message }));
-  }
+  }, 1500);
 };
 
 export const signout = () => (dispatch) => {
@@ -122,6 +128,7 @@ export const {
   authSuccess,
   authFail,
   authSignout,
+  resetError,
 } = authSlice.actions;
 
 // Exports auth states

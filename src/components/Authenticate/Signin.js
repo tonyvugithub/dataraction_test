@@ -1,6 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { signin, selectAuthState } from '../../features/authenticate/authSlice';
+import {
+  signin,
+  selectAuthState,
+  resetError,
+} from '../../features/authenticate/authSlice';
 import Spinner from '../UI/Spinner/Spinner';
 
 export default () => {
@@ -11,6 +15,10 @@ export default () => {
 
   const { error, loading } = useSelector(selectAuthState);
 
+  useEffect(() => {
+    dispatch(resetError());
+  }, [dispatch]);
+
   const onSubmit = (e) => {
     e.preventDefault();
     dispatch(signin({ username, password }));
@@ -18,7 +26,7 @@ export default () => {
     setPassword('');
   };
 
-  const errorMessage = <div>{error}</div>;
+  const errorMessage = <div className="text-danger mt-3">{error}</div>;
   return (
     <div className="mt-5 mx-auto" style={{ maxWidth: '500px' }}>
       {loading ? (
@@ -35,6 +43,8 @@ export default () => {
                 name="username"
                 id="username"
                 onChange={(e) => setUsername(e.target.value)}
+                value={username}
+                autoFocus
               ></input>
             </div>
             <div className="form-group">
@@ -45,6 +55,7 @@ export default () => {
                 name="password"
                 id="password"
                 onChange={(e) => setPassword(e.target.value)}
+                value={password}
               ></input>
             </div>
             <button type="submit" className="btn btn-primary">
