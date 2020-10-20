@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import bcrypt from 'bcryptjs';
 
 export const authSlice = createSlice({
   name: 'auth',
@@ -6,7 +7,6 @@ export const authSlice = createSlice({
     error: null,
     loading: false,
     username: null,
-    isAuthenticated: false,
     token: null,
   },
   reducers: {
@@ -14,20 +14,17 @@ export const authSlice = createSlice({
       state.error = null;
       state.loading = true;
       state.username = null;
-      state.isAuthenticated = false;
       state.token = null;
     },
     authSuccess: (state, action) => {
       state.error = null;
       state.loading = false;
       state.username = action.payload.username;
-      state.isAuthenticated = true;
       state.token = action.payload.token;
     },
     authFail: (state, action) => {
       state.error = action.payload.error;
       state.loading = false;
-      state.isAuthenticated = false;
       state.username = null;
       state.token = null;
     },
@@ -35,37 +32,76 @@ export const authSlice = createSlice({
       state.username = null;
       state.error = null;
       state.loading = false;
-      state.isAuthenticated = false;
       state.token = null;
     },
   },
 });
 
 // Supposedly async functions
-export const signin = (data) => (dispatch) => {
-  authenticate(data, dispatch);
-};
-
-export const signup = (data) => (dispatch) => {
-  authenticate(data, dispatch);
-};
-
-export const signout = () => (dispatch) => {
-  dispatch(authSignout());
-};
-
-const authenticate = (data, dispatch) => {
+export const signin = (data) => async (dispatch) => {
   dispatch(authStart());
-  const userInfoJSON = JSON.stringify(data);
+  // This simulate a check to server to see if there is a user
+  const user = JSON.parse(localStorage.getItem(data.username));
+
+  // Compare the password
+  const match = await bcrypt.compare(data.password, user.password);
 
   // Assume this could throw error, simulate a call to database
   try {
-    localStorage.setItem(data.username, userInfoJSON);
-    localStorage.setItem('token', userInfoJSON);
-    dispatch(authSuccess({ username: data.username, token: userInfoJSON }));
+    if (match) {
+      // Simulate response time of 1500 ms
+      setTimeout(() => {
+        dispatch(authSuccess({ username: data.username, token: userInfoJSON }));
+      }, 1500);
+      const userInfoJSON = JSON.stringify(user);
+      localStorage.setItem('token', userInfoJSON);
+    } else {
+      throw new Error('Invalid credentials!');
+    }
   } catch (err) {
-    dispatch(authFail(err));
+    console.log(err.message);
+    dispatch(authFail({ error: err.message }));
   }
+};
+
+export const signup = (data) => (dispatch) => {
+  dispatch(authStart());
+  // This simulate a check to server to see if there is a user
+  const userInfoFromDb = localStorage.getItem(data.username);
+
+  // Assume this could throw error, simulate a call to database
+  try {
+    if (userInfoFromDb) {
+      throw new Error('User already exist!');
+    } else {
+      // Hash the password and store into database
+      bcrypt.hash(data.password, 12, (err, hash) => {
+        const saveData = {
+          username: data.username,
+          password: hash,
+        };
+
+        const userInfoJSON = JSON.stringify(saveData);
+
+        // Simulate response time of 1500 ms
+        setTimeout(() => {
+          dispatch(
+            authSuccess({ username: data.username, token: userInfoJSON })
+          );
+        }, 1500);
+        localStorage.setItem(data.username, userInfoJSON);
+        localStorage.setItem('token', userInfoJSON);
+      });
+    }
+  } catch (err) {
+    console.log(err.message);
+    dispatch(authFail({ error: err.message }));
+  }
+};
+
+export const signout = () => (dispatch) => {
+  localStorage.removeItem('token');
+  dispatch(authSignout());
 };
 
 export const validateExistingToken = () => (dispatch) => {
@@ -73,7 +109,6 @@ export const validateExistingToken = () => (dispatch) => {
   console.log(tokenValue);
   if (tokenValue) {
     const user = JSON.parse(tokenValue);
-    console.log(user);
     dispatch(authSuccess({ username: user.username, token: tokenValue }));
   } else {
     dispatch(authSignout());

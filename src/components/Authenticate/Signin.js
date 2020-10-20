@@ -8,11 +8,14 @@ export default () => {
 
   const dispatch = useDispatch();
 
+  const { error } = useSelector(selectAuthState);
+
   const onSubmit = (e) => {
     e.preventDefault();
     dispatch(signin({ username, password }));
   };
 
+  const errorMessage = <div>{error}</div>;
   return (
     <div>
       <h2>Sign In</h2>
@@ -31,6 +34,7 @@ export default () => {
         ></input>
         <button>Submit</button>
       </form>
+      {error && errorMessage}
     </div>
   );
 };

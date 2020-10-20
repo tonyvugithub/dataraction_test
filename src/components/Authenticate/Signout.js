@@ -9,5 +9,5 @@ export default () => {
     dispatch(signout());
   }, [dispatch]);
 
-  return <Redirect to="/auth" />;
+  return <Redirect to="/" />;
 };

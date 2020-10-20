@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Redirect } from 'react-router-dom';
-import { signup } from '../../features/authenticate/authSlice';
+import { signup, selectAuthState } from '../../features/authenticate/authSlice';
 
 export default () => {
   const [username, setUsername] = useState('');
@@ -9,10 +8,16 @@ export default () => {
 
   const dispatch = useDispatch();
 
+  const { error } = useSelector(selectAuthState);
+
   const onSubmit = (e) => {
     e.preventDefault();
     dispatch(signup({ username, password }));
+    setUsername('');
+    setPassword('');
   };
+
+  const errorMessage = <div>{error}</div>;
 
   return (
     <div>
@@ -32,6 +37,7 @@ export default () => {
         ></input>
         <button>Submit</button>
       </form>
+      {error && errorMessage}
     </div>
   );
 };
