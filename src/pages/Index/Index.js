@@ -17,7 +17,7 @@ export default () => {
         </div>
       ) : (
         <div className={'mt-5 ' + classes.initial}>
-          <h2>I'm currently free and not belong to anyone</h2>
+          <h2>I'm currently available ! Anyone can login!</h2>
           <p className="mt-3 text-danger">
             Tony is not hired yet. Finger Crossed!
           </p>
