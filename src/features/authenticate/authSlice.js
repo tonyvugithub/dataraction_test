@@ -50,7 +50,6 @@ export const signin = (data) => async (dispatch) => {
 
     // Compare the password
     const match = await bcrypt.compare(data.password, user.password);
-    console.log(match);
 
     // Assume this could throw error, simulate a call to database
     if (match) {
@@ -98,7 +97,6 @@ export const signup = (data) => (dispatch) => {
       });
     }
   } catch (err) {
-    console.log(err.message);
     dispatch(authFail({ error: err.message }));
   }
 };
@@ -110,7 +108,6 @@ export const signout = () => (dispatch) => {
 
 export const validateExistingToken = () => (dispatch) => {
   const tokenValue = localStorage.getItem('token');
-  console.log(tokenValue);
   if (tokenValue) {
     const user = JSON.parse(tokenValue);
     dispatch(authSuccess({ username: user.username, token: tokenValue }));

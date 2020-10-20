@@ -29,7 +29,7 @@ export default () => {
           <h2>Sign Up Form</h2>
           <form onSubmit={onSubmit}>
             <div className="form-group">
-              <label for="username">Username</label>
+              <label htmlFor="username">Username</label>
               <input
                 className="form-control"
                 type="text"
@@ -39,7 +39,7 @@ export default () => {
               ></input>
             </div>
             <div className="form-group">
-              <label for="password">Password</label>
+              <label htmlFor="password">Password</label>
               <input
                 className="form-control"
                 type="password"
@@ -48,7 +48,7 @@ export default () => {
                 onChange={(e) => setPassword(e.target.value)}
               ></input>
             </div>
-            <button type="submit" class="btn btn-primary">
+            <button type="submit" className="btn btn-primary">
               Submit
             </button>
           </form>
